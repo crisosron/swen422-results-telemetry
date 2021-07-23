@@ -5,6 +5,6 @@ const userEntryController = require('../controllers/user-entry-controller');
 userEntryRouter.get('/', userEntryController.userEntryIndex);
 
 // TODO: Change to POST for better semantics
-userEntryRouter.get('/create-user-entry', userEntryController.createUserEntry);
+userEntryRouter.get('/create', userEntryController.createUserEntry);
 
 module.exports = userEntryRouter;
