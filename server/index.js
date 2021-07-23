@@ -10,6 +10,9 @@ app.listen(PORT, () => {
 
 require('./database-setup');
 
+// -------------------------- MIDDLEWARE SETUP -------------------------- //
+const userEntryRouter = require('./routes/user-entry-routes');
 app.get('/', (req, res) => {
     res.send("Visual Telemetry Application Server");
 });
+app.use('/user-entries/', userEntryRouter);
