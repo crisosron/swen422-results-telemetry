@@ -1,7 +1,8 @@
-FROM node:16-slim
-WORKDIR /usr/app
-COPY package.json .
+FROM node:15-slim
+RUN apt-get update
+WORKDIR /app
+COPY package*.json ./
 RUN npm i --quiet
-EXPOSE 3000
 COPY . .
-CMD ["npm", "start"]
+EXPOSE 3000
+CMD ["yarn", "start"]

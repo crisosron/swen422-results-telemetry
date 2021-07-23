@@ -9,3 +9,7 @@ app.listen(PORT, () => {
 });
 
 require('./database-setup');
+
+app.get('/', (req, res) => {
+    res.send("Visual Telemetry Application Server");
+});
