@@ -18,7 +18,7 @@ const generateRandomColor = () => {
     return '#' + Math.floor(Math.random()*16777215).toString(16);
 }
 
-const GraphBlock = (props) => {
+const RatioGraphBlock = (props) => {
     const { dataFetcher, dataFetcherName, title, displayLegend } = props;
     console.log('DISPLAY LEGEND:', displayLegend);
     const { isLoading, error, data } = useQuery(dataFetcherName, dataFetcher)
@@ -26,7 +26,7 @@ const GraphBlock = (props) => {
 
     useEffect(() => {
         if(isLoading) return;
-        if (data.hasOwnProperty('invalidFetchMessage')) return;
+        if (!data || data.hasOwnProperty('invalidFetchMessage')) return;
 
         const graphData = {
             labels: data.labels,
@@ -49,7 +49,7 @@ const GraphBlock = (props) => {
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(data.hasOwnProperty('invalidFetchMessage') || !graphData || !graphData.datasets) {
+    } else if(!data || data.hasOwnProperty('invalidFetchMessage') || !graphData || !graphData.datasets) {
         return (
             <StyledDiv>
                 <StyledGraphTitle>{title}</StyledGraphTitle>
@@ -67,4 +67,4 @@ const GraphBlock = (props) => {
     }
 }
 
-export default GraphBlock;
+export default RatioGraphBlock;
