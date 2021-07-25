@@ -4,8 +4,11 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import axios from 'axios';
 
 const queryClient = new QueryClient();
+axios.defaults.baseURL = process.env.REACT_APP_SERVER_URI;
+console.log("AXIOS BASE URL: ", axios.defaults.baseURL);
 
 ReactDOM.render(
   <React.StrictMode>

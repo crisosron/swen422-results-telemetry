@@ -21,7 +21,6 @@ const generateRandomColor = () => {
 
 const GraphBlock = (props) => {
     const { dataFetcher, dataFetcherName, title, displayLegend } = props;
-    console.log('DISPLAY LEGEND:', displayLegend);
     const { isLoading, error, data } = useQuery(dataFetcherName, dataFetcher)
     const [datasets, setDatasets] = useState([]);
 
@@ -55,7 +54,7 @@ const GraphBlock = (props) => {
 
     useEffect(() => {
         if(isLoading) return;
-        if (data.hasOwnProperty('invalidFetchMessage')) return;
+        if (!data || data.hasOwnProperty('invalidFetchMessage')) return;
         const datasets = data.map((entry, i) => {
             return {
                 label: i,
@@ -76,7 +75,7 @@ const GraphBlock = (props) => {
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(data.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
+    } else if(!data || data.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
         return (
             <StyledDiv>
                 <StyledGraphTitle>{title}</StyledGraphTitle>
