@@ -1,7 +1,10 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
+const cors = require('cors');
 const app = express();
+
+app.use(cors());
 
 // process.env.PORT refers to the port number heroku assigns on deploy
 const PORT = process.env.PORT || process.env.SERVER_PORT || 5000;
