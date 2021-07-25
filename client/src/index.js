@@ -7,7 +7,6 @@ import axios from 'axios';
 
 const queryClient = new QueryClient();
 axios.defaults.baseURL = process.env.REACT_APP_SERVER_URI;
-console.log("AXIOS BASE URL: ", axios.defaults.baseURL);
 
 ReactDOM.render(
   <React.StrictMode>
