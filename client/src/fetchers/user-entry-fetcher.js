@@ -2,7 +2,28 @@ import axios from 'axios'
 
 const getAllUserEntries = async () => {
     const { data } = await axios.get('/user-entries');
-    return data.map((elem) => elem.attempts);
+    return data;
 }
 
-export { getAllUserEntries }
+const getLatestEntry = async () => {
+    const { data } = await axios.get('/user-entries/latest-entry');
+    return data;
+}
+
+const getLatestEntryWithTraining = async () => {
+    const { data } = await axios.get('/user-entries/latest-entry-with-training');
+    return data;
+}
+
+const getTrainingEntries = async () => {
+    const { data } = await axios.get('/user-entries/training-entries');
+    return data;
+}
+
+const getActualEntries = async () => {
+    const { data } = await axios.get('/user-entries/actual-entries');
+    return data;
+}
+
+export { getAllUserEntries, getLatestEntry, getLatestEntryWithTraining, getActualEntries, 
+    getTrainingEntries }
