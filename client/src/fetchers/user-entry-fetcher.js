@@ -25,5 +25,10 @@ const getActualEntries = async () => {
     return data;
 }
 
+const getSuccessFailRatio = async () => {
+    const { data } = await axios.get('/user-entries/success-fail-ratio');
+    return data;
+}
+
 export { getAllUserEntries, getLatestEntry, getLatestEntryWithTraining, getActualEntries, 
-    getTrainingEntries }
+    getTrainingEntries, getSuccessFailRatio }

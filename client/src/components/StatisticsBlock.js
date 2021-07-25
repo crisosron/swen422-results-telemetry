@@ -25,10 +25,8 @@ const SIG_FIG = 3
 
 const StatisticsBlock = (props) => {
     const { data } = props;
-    console.log("Data in statsblock: ", data);
 
     if(data.hasOwnProperty('invalidFetchMessage') || !data || data.length === 0) {
-        console.log("DATA EMPTY");
         return (
             <StyledDiv>
                 <TextBlock>

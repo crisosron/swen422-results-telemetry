@@ -1,8 +1,7 @@
 import styled from 'styled-components';
 import {useState, useEffect} from 'react';
 import { useQuery } from 'react-query';
-import { Line } from 'react-chartjs-2';
-import StatisticsBlock from './StatisticsBlock';
+import { Doughnut } from 'react-chartjs-2';
 
 const StyledDiv = styled.div`
     width: 500px;
@@ -23,49 +22,23 @@ const GraphBlock = (props) => {
     const { dataFetcher, dataFetcherName, title, displayLegend } = props;
     console.log('DISPLAY LEGEND:', displayLegend);
     const { isLoading, error, data } = useQuery(dataFetcherName, dataFetcher)
-    const [datasets, setDatasets] = useState([]);
-
-    const options = {
-        plugins: {
-            legend: {
-                display: !!displayLegend
-            }
-        },
-        scales: {
-            x: {
-                title: {
-                    display: true,
-                    text: 'Attempts'
-                }
-            },
-
-            y: {
-                title: {
-                    display: true,
-                    text: 'Reaction time (ms)'
-                }
-            }
-        }
-    }
-
-    const graphData = {
-        labels: Array.from({length: 10}, (_, i) => i + 1),
-        datasets,
-    };
+    const [graphData, setGraphData] = useState();
 
     useEffect(() => {
         if(isLoading) return;
         if (data.hasOwnProperty('invalidFetchMessage')) return;
-        const datasets = data.map((entry, i) => {
-            return {
-                label: i,
-                data: entry.attempts,
-                borderColor: generateRandomColor(),
-                tension: 0.5
-            }
-        });
 
-        setDatasets(datasets);
+        const graphData = {
+            labels: data.labels,
+            datasets: [{
+                data: data.values,
+                backgroundColor: [
+                    generateRandomColor(), generateRandomColor(),
+                ]
+            }]
+        }
+
+        setGraphData(graphData);
 
     }, [isLoading, data])
 
@@ -76,7 +49,7 @@ const GraphBlock = (props) => {
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(data.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
+    } else if(data.hasOwnProperty('invalidFetchMessage') || !graphData || !graphData.datasets) {
         return (
             <StyledDiv>
                 <StyledGraphTitle>{title}</StyledGraphTitle>
@@ -87,8 +60,8 @@ const GraphBlock = (props) => {
         return (
             <StyledDiv>
                 <StyledGraphTitle>{title}</StyledGraphTitle>
-                <Line data={graphData} options={options}></Line>
-                <StatisticsBlock data={data} />
+                <Doughnut data={graphData} 
+                options={{ }}/>
             </StyledDiv>
         );
     }

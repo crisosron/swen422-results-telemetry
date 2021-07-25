@@ -101,10 +101,8 @@ exports.latestEntryWithTraining = async (req, res) => {
 // Route: /user-entries/training-entries
 // Functionality: Get all attempts that correspond to a 'training entries'
 exports.trainingEntries = (req, res) => {
-    console.log("--------- GETTING TRAINING ENTRIES ---------");
     UserEntry.find({})
     .then((results) => {
-        console.log('finding trainng entries res: ', results);
         // Training sets are the even indexed attempt arrays
         const filteredResults = results.filter((attempts, i) => i % 2 === 0 )
         res.send(buildData(filteredResults));
@@ -112,7 +110,6 @@ exports.trainingEntries = (req, res) => {
     .catch((err) => {
         console.error("Failed to fetch training sets: ", err)
     });
-    
 }
 
 // Route: /user-entries/actual-entries
@@ -121,13 +118,40 @@ exports.actualEntries = (req, res) => {
     console.log("--------- GETTING ACTUAL ENTRIES ---------");
     UserEntry.find({})
     .then((results) => {
-        console.log('finding actual entries res: ', results);
         // Training sets are the odd indexed attempt arrays
         const filteredResults = results.filter((attempts, i) => i % 2 !== 0 )
         res.send(buildData(filteredResults));
     })
     .catch((err) => {
         console.error("Failed to fetch actual sets: ", err)
+    });
+}
+
+// Route: /user-entries/success-fail-ratio
+// Functionality: Gets the total number of success and failures
+exports.successToFailRatio = async (req, res) => {
+    const numAttemptsSet = await UserEntry.count({});
+    if (numAttemptsSet === 0) {
+        res.send({
+            invalidFetchMessage: 'Insufficient data to display' 
+        });
+        return;
+    }
+    const maxNumAttempts = await UserEntry.count({}) * 10;
+    UserEntry.find({})
+    .then((results) => {
+        // Successful attempts correspond to the length of each attempts array (since these
+        // contain only the succesful responses)
+        let numSuccessfulAttempts = 0;
+        results.forEach((result) => numSuccessfulAttempts += result.attempts.length);
+        const numFailedAttempts = maxNumAttempts - numSuccessfulAttempts;
+        res.send({
+            values: [numSuccessfulAttempts, numFailedAttempts],
+            labels: ["Success", "Fail"]
+        });
+    })
+    .catch((err) => {
+        console.error("Failed to get success to failure ratio: ", err);
     });
 }
 
@@ -143,4 +167,5 @@ exports.clearEntries = (req, res) => {
         console.error("Failed to delete all documents: ", err);
     });
 }
+
 
