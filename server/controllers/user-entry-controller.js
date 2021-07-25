@@ -3,7 +3,6 @@ const UserEntry = require('../models/UserEntry');
 
 // Assume queryResult is an array
 const buildData = (queryResult) => {
-    console.log("BUILDING DATA");
     let data = [];
     queryResult.forEach((entry) => {
         if(entry.attempts.length === 0) return;
@@ -34,7 +33,6 @@ exports.userEntryIndex = (req, res) => {
 // Route: /user-entries/create
 // Functionality: Creates a user entry using the model UserEntry
 exports.createUserEntry = (req, res) => {
-    console.log("Creating a user entry");
 
     const numSuccessfulAttempts = Math.floor(Math.random() * 10);
     let attempts = [];
@@ -88,7 +86,6 @@ exports.latestEntryWithTraining = async (req, res) => {
             res.send(buildData([result[result.length - 1], result[result.length - 2]]));
             return;
         }
-        console.log("Got here");
         res.send(buildData([result[2], result[1]]));
     })
     .catch((err) => {
@@ -115,7 +112,6 @@ exports.trainingEntries = (req, res) => {
 // Route: /user-entries/actual-entries
 // Functionality: Get all attempts that correspond to an 'actual entries'
 exports.actualEntries = (req, res) => {
-    console.log("--------- GETTING ACTUAL ENTRIES ---------");
     UserEntry.find({})
     .then((results) => {
         // Training sets are the odd indexed attempt arrays
