@@ -2,7 +2,9 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 const express = require('express');
 const app = express();
-const PORT = process.env.SERVER_PORT || 5000;
+
+// process.env.PORT refers to the port number heroku assigns on deploy
+const PORT = process.env.PORT || process.env.SERVER_PORT || 5000;
 
 app.listen(PORT, () => {
     console.log(`------------------- EXPRESS SERVER LISTENING ON PORT ${PORT} --------------------`);
