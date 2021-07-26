@@ -33,7 +33,31 @@ exports.userEntryIndex = (req, res) => {
 // Route: /user-entries/create
 // Functionality: Creates a user entry using the model UserEntry
 exports.createUserEntry = (req, res) => {
+    if(!req.body) {
+        // Just a random fallback if all else fails
+        req.body = "804, 451, 756, 321, 123";
+    }
+    const attempts = req.body.attempts.split(',');
+    if(attempts.length === 0) return;
 
+    const userEntry = new UserEntry({
+        attempts,
+    });
+
+    userEntry.save()
+    .then(() => {
+        res.send("Successfully logged entry");
+        res.status(200);
+    })
+    .catch((err) => {
+        console.log('Error on creating user entry: ', err);
+        res.status(500);
+    });
+}
+
+// Route: /user-entries/seed-user-entry
+// Functionality: Creates a randomly generated user entry using the model UserEntry
+exports.seedUserEntry = (req, res) => {
     const numSuccessfulAttempts = Math.floor(Math.random() * 10);
     let attempts = [];
     for(let i = 0; i < numSuccessfulAttempts; i++){
@@ -45,8 +69,6 @@ exports.createUserEntry = (req, res) => {
 
     userEntry.save()
     .then((result) => {
-
-        // TODO: Don't send the result back to the client. This is just a sample.
         res.send(result);
     })
     .catch((err) => {

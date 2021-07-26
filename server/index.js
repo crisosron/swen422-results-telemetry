@@ -5,6 +5,8 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors());
+app.use(express.urlencoded({extended: true}));
+app.use(express.json());
 
 // process.env.PORT refers to the port number heroku assigns on deploy
 const PORT = process.env.PORT || process.env.SERVER_PORT || 5000;

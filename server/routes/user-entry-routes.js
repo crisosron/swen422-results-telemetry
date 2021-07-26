@@ -8,9 +8,9 @@ userEntryRouter.get('/latest-entry-with-training', userEntryController.latestEnt
 userEntryRouter.get('/training-entries', userEntryController.trainingEntries);
 userEntryRouter.get('/actual-entries', userEntryController.actualEntries);
 userEntryRouter.get('/success-fail-ratio', userEntryController.successToFailRatio);
+userEntryRouter.get('/seed-user-entry', userEntryController.seedUserEntry);
 
-// TODO: Change to POST for better semantics
-userEntryRouter.get('/create', userEntryController.createUserEntry);
+userEntryRouter.post('/create', userEntryController.createUserEntry);
 
 // TODO: Change to DELETE for better semantics
 userEntryRouter.get('/clear-entries', userEntryController.clearEntries)
