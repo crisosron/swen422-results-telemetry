@@ -20,7 +20,6 @@ const generateRandomColor = () => {
 
 const RatioGraphBlock = (props) => {
     const { dataFetcher, dataFetcherName, title, displayLegend } = props;
-    console.log('DISPLAY LEGEND:', displayLegend);
     const { isLoading, error, data } = useQuery(dataFetcherName, dataFetcher)
     const [graphData, setGraphData] = useState();
 

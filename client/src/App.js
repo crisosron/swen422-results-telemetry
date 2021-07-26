@@ -9,6 +9,7 @@ import GraphBlock from './components/GraphBlock';
 import RatioGraphBlock from './components/RatioGraphBlock';
 import styled from 'styled-components';
 import titleImage from './app-title-image.png';
+import { useEffect } from 'react';
 
 const StyledPageWrapper = styled.div`
   padding: 20px;
@@ -22,6 +23,9 @@ const TitleImageWrapper = styled.div`
   margin: 20px;
 `
 const App = () => {
+  useEffect(() => {
+    document.title = "SWEN422 Results Telemetry";
+  }, []);
   return (
     <>
       <TitleImageWrapper>
