@@ -20,6 +20,10 @@ require('./database-setup');
 // -------------------------- MIDDLEWARE SETUP -------------------------- //
 const userEntryRouter = require('./routes/user-entry-routes');
 app.get('/', (req, res) => {
-    res.send("Visual Telemetry Application Server");
+    const instructions = 
+        "<h1>SWEN422 Visual Telemetry Application Server</h1>" + 
+        "<p>/user-entries/seed-user-entry - To generate a random set of attempts</p>" +
+        "<p>/user-entries/clear-entries - To clear the DB of ALL user entries</p>"
+    res.send(instructions);
 });
 app.use('/user-entries/', userEntryRouter);
