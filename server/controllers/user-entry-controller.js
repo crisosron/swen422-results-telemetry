@@ -1,5 +1,6 @@
 const ss = require('simple-statistics');
 const UserEntry = require('../models/UserEntry');
+const Attempt = require('../models/Attempt');
 
 // Assume queryResult is an array
 const buildData = (queryResult) => {
@@ -33,16 +34,29 @@ exports.userEntryIndex = (req, res) => {
 // Route: /user-entries/create
 // Functionality: Creates a user entry using the model UserEntry
 exports.createUserEntry = (req, res) => {
-    if(!req.body) {
-        // Just a random fallback if all else fails
-        req.body = "804, 451, 756, 321, 123";
-    }
-    const attempts = req.body.attempts.split(',');
-    if(attempts.length === 0) return;
+    if(!req.body.attempts || req.body.attempts === 0) return;
+
+    const sanitizedAttempts = [];
+
+    // We need this to handle the supposedly boolean props whose value is representing by a string
+    // that is either "True" or "False"
+    req.body.attempts.forEach((attempt) => {
+        sanitizedAttempts.push({
+            isAbstractImages: attempt.isAbstractImages === "True",
+            isCorrect: attempt.isCorrect === "True",
+            mouseStillTime: attempt.mouseStillTime,
+            mouseTravelTime: attempt.mouseTravelTime,
+            mouseClickTime: attempt.mouseClickTime,
+            mouseTotalTime: attempt.mouseTotalTime,
+            startPosToCentreDistance: attempt.startPosToCentreDistance,
+            startPosToPointDistance: attempt.startPosToPointDistance,
+            travelVelocity: attempt.travelVelocity
+        });
+    })
 
     const userEntry = new UserEntry({
-        attempts,
-    });
+        attempts: sanitizedAttempts
+    })
 
     userEntry.save()
     .then(() => {
@@ -57,22 +71,34 @@ exports.createUserEntry = (req, res) => {
 
 // Route: /user-entries/seed-user-entry
 // Functionality: Creates a randomly generated user entry using the model UserEntry
-exports.seedUserEntry = (req, res) => {
-    const numSuccessfulAttempts = Math.floor(Math.random() * 10);
+exports.seedUserEntry = async (req, res) => {
+
+    const numAttempts = 10;
     let attempts = [];
-    for(let i = 0; i < numSuccessfulAttempts; i++){
-        attempts.push(Math.random() * 1);
+    for(let i = 0; i < numAttempts; i++){
+        attempts.push({
+            isAbstractImages: true,
+            isCorrect: true,
+            mouseStillTime: Math.random() * 10,
+            mouseTravelTime: Math.random() * 10,
+            mouseClickTime: Math.random() * 2,
+            mouseTotalTime: Math.random() * 10,
+            startPosToCentreDistance: Math.random() * 10,
+            startPosToPointDistance: Math.random() * 10,
+            travelVelocity: Math.random() * 10,
+        });
     }
+
     const userEntry = new UserEntry({
         attempts,
-    });
+    })
 
     userEntry.save()
     .then((result) => {
-        res.send(result);
+        res.send(result)
     })
     .catch((err) => {
-        console.log('Error on creating user entry: ', err);
+        console.log("Error on seeding user entry: ", err);
     });
 }
 
@@ -179,11 +205,9 @@ exports.successToFailRatio = async (req, res) => {
 exports.clearEntries = (req, res) => {
     UserEntry.deleteMany({})
     .then(() => {
-        res.send("ALL DOCUMENTS DELETED");
+        res.send("ALL USER ENTRIES DELETED");
     })
     .catch((err) => {
         console.error("Failed to delete all documents: ", err);
     });
 }
-
-
