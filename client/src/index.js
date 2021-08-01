@@ -6,7 +6,8 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import axios from 'axios';
 
 const queryClient = new QueryClient();
-axios.defaults.baseURL = process.env.REACT_APP_SERVER_URI;
+// TODO: uncomment for prod
+// axios.defaults.baseURL = process.env.REACT_APP_SERVER_URI;
 
 ReactDOM.render(
   <React.StrictMode>

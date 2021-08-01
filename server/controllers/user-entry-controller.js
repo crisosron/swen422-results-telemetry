@@ -1,20 +1,19 @@
 const ss = require('simple-statistics');
 const UserEntry = require('../models/UserEntry');
-const Attempt = require('../models/Attempt');
 
 // Assume queryResult is an array
 const buildData = (queryResult) => {
     let data = [];
     queryResult.forEach((entry) => {
-        if(entry.attempts.length === 0) return;
-        data.push({
-            attempts: entry.attempts,
-            min: ss.min(entry.attempts),
-            max: ss.max(entry.attempts),
-            mean: ss.mean(entry.attempts),
-            median: ss.median(entry.attempts),
-            sd: ss.standardDeviation(entry.attempts)
-        });
+        // if(entry.attempts.length === 0) return;
+        // data.push({
+        //     attempts: entry.attempts,
+        //     min: ss.min(entry.attempts),
+        //     max: ss.max(entry.attempts),
+        //     mean: ss.mean(entry.attempts),
+        //     median: ss.median(entry.attempts),
+        //     sd: ss.standardDeviation(entry.attempts)
+        // });
     });
     return data;
 }
@@ -22,13 +21,15 @@ const buildData = (queryResult) => {
 // Route: /user-entries/
 // Functionality: Creates a user entry using the model UserEntry
 exports.userEntryIndex = (req, res) => {
-    UserEntry.find().limit(15)
-    .then((result) => {
-        res.send(buildData(result));
-    })
-    .catch((err) => {
-        console.error('Error on fetching all user entries: ', err)
-    });
+    // UserEntry.find().limit(15)
+    // .then((result) => {
+    //     res.send(buildData(result));
+    // })
+    // .catch((err) => {
+    //     console.error('Error on fetching all user entries: ', err)
+    // });
+    res.send("This endpoint is deprecated");
+    res.status(500);
 }
 
 // Route: /user-entries/create
@@ -197,6 +198,35 @@ exports.successToFailRatio = async (req, res) => {
     .catch((err) => {
         console.error("Failed to get success to failure ratio: ", err);
     });
+}
+
+exports.getAllMouseStillTime = async (req, res) => {
+    console.log("----------- GETTING ALL MOUSE STILL TIME -----------");
+    const options = req.query;
+    console.log('options: ', options);
+
+}
+
+exports.getAllMouseTravelTime = async (req, res) => {
+    console.log("----------- GETTING ALL MOUSE TRAVEL TIME -----------");
+    const options = req.query;
+    console.log('options: ', options);
+    res.send("Here's a response");
+}
+
+exports.getAllMouseClickTime = async (req, res) => {
+    console.log("----------- GETTING ALL MOUSE CLICK TIME -----------");
+    const options = req.query;
+    console.log('options: ', options);
+    res.send("Here's a response");
+}
+
+exports.getAllMouseTotalTime = async (req, res) => {
+    console.log("----------- GETTING ALL MOUSE TOTAL TIME -----------");
+    const options = req.query;
+    console.log('options: ', options);
+    res.send("Here's a response");
+
 }
 
 // Route: /user-entries/clear-entries
