@@ -9,7 +9,7 @@ import GraphBlock from './components/GraphBlock';
 import RatioGraphBlock from './components/RatioGraphBlock';
 import styled from 'styled-components';
 import titleImage from './app-title-image.png';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const StyledPageWrapper = styled.div`
   padding: 20px;
@@ -46,20 +46,34 @@ const createDataFetchers = (options) => {
 }
 
 const App = () => {
-  useEffect(() => {
-    document.title = "SWEN422 Results Telemetry";
 
-    const dataFetchers = [
+  // const [dataFetchers, setDataFetchers] = useState([]);
+
+  const dataFetchers = [
       // ...createDataFetchers({forTraining: false, forAbstractImages: false}),
       // ...createDataFetchers({forTraining: true, forAbstractImages: false}),
       // ...createDataFetchers({forTraining: false, forAbstractImages: true}),
       ...createDataFetchers({forTraining: true, forAbstractImages: true})
     ]
 
-    // dataFetchers.forEach((fetcher) => fetcher());
-    dataFetchers[0]();
 
-  }, []);
+    // setDataFetchers(dataFetchers);
+
+
+  // useEffect(() => {
+  //   document.title = "SWEN422 Results Telemetry";
+
+  //   const dataFetchers = [
+  //     // ...createDataFetchers({forTraining: false, forAbstractImages: false}),
+  //     // ...createDataFetchers({forTraining: true, forAbstractImages: false}),
+  //     // ...createDataFetchers({forTraining: false, forAbstractImages: true}),
+  //     ...createDataFetchers({forTraining: true, forAbstractImages: true})
+  //   ]
+
+
+  //   setDataFetchers(dataFetchers);
+
+  // }, []);
 
   return (
     <>
@@ -67,6 +81,7 @@ const App = () => {
         <img src={titleImage} alt="Title Image" width="1000" />
       </TitleImageWrapper>
       <StyledPageWrapper>
+          <GraphBlock dataFetcher={dataFetchers[0]}></GraphBlock>
             {/* <GraphBlock title="Global Statistics" dataFetcherName="globalAverage" dataFetcher={ getAllUserEntries } />
             <GraphBlock title="Latest Entry with Training" displayLegend dataFetcherName="latestEntryWithTraining" dataFetcher={ getLatestEntryWithTraining } />
             <GraphBlock title="Latest Entry" dataFetcherName="latestEntry" dataFetcher={ getLatestEntry } />

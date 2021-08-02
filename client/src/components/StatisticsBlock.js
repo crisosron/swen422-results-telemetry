@@ -24,9 +24,9 @@ const TextBlock = styled.div`
 const SIG_FIG = 3
 
 const StatisticsBlock = (props) => {
-    const { data } = props;
+    const { stats } = props;
 
-    if(data.hasOwnProperty('invalidFetchMessage') || !data || data.length === 0) {
+    if(stats.hasOwnProperty('invalidFetchMessage') || !stats || Object.keys(stats).length === 0) {
         return (
             <StyledDiv>
                 <TextBlock>
@@ -36,45 +36,23 @@ const StatisticsBlock = (props) => {
         )
     }
 
-    // If there is more than 1 dataset, we need to calculate the total statistics across
-    // all the datasets. Otherwise, we just use the statistics of the only dataset in data
-    let stats;
-    if(data.length > 1) {
-        const flatMappedAttempts = data.flatMap((entry) => entry.attempts);
-        stats = {
-            mean: mean(flatMappedAttempts).toPrecision(SIG_FIG),
-            median: median(flatMappedAttempts).toPrecision(SIG_FIG),
-            min: min(flatMappedAttempts).toPrecision(SIG_FIG),
-            max: max(flatMappedAttempts).toPrecision(SIG_FIG),
-            sd: standardDeviation(flatMappedAttempts).toPrecision(SIG_FIG)
-        }
-    } else {
-        stats = {
-            mean: data[0].mean.toPrecision(SIG_FIG),
-            median: data[0].median.toPrecision(SIG_FIG),
-            min: data[0].min.toPrecision(SIG_FIG),
-            max: data[0].max.toPrecision(SIG_FIG),
-            sd: data[0].sd.toPrecision(SIG_FIG)
-        }
-    }
-
     return (
         <StyledDiv>
             <TextBlock>
                 <StatTitle>Mean</StatTitle>
-                <StatText>{stats.mean}</StatText>
+                <StatText>{stats.mean.toPrecision(SIG_FIG)}</StatText>
             </TextBlock>
             <TextBlock>
                 <StatTitle>Median</StatTitle>
-                <StatText>{stats.median}</StatText>
+                <StatText>{stats.median.toPrecision(SIG_FIG)}</StatText>
             </TextBlock>
             <TextBlock>
                 <StatTitle>Min/Max</StatTitle>
-                <StatText>{`${stats.min}/${stats.max}`}</StatText>
+                <StatText>{`${stats.min.toPrecision(SIG_FIG)}/${stats.max.toPrecision(SIG_FIG)}`}</StatText>
             </TextBlock>
             <TextBlock>
                 <StatTitle>SD</StatTitle>
-                <StatText>{stats.sd}</StatText>
+                <StatText>{stats.sd.toPrecision(SIG_FIG)}</StatText>
             </TextBlock>
         </StyledDiv>
     )

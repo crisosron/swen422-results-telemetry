@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import {useState, useEffect} from 'react';
-import { useQuery } from 'react-query';
 import { Line } from 'react-chartjs-2';
 import StatisticsBlock from './StatisticsBlock';
 
@@ -20,9 +19,13 @@ const generateRandomColor = () => {
 }
 
 const GraphBlock = (props) => {
-    const { dataFetcher, dataFetcherName, title, displayLegend } = props;
-    const { isLoading, error, data } = useQuery(dataFetcherName, dataFetcher)
-    const [datasets, setDatasets] = useState([]);
+    const {dataFetcher, displayLegend} = props;
+    const [isLoading, setIsLoading] = useState(true);
+    const [graphData, setGraphData] = useState();
+
+    const [datasets, setDatasets] = useState();
+
+    console.log('dataFetcher', dataFetcher);
 
     const options = {
         plugins: {
@@ -41,56 +44,77 @@ const GraphBlock = (props) => {
             y: {
                 title: {
                     display: true,
-                    text: 'Reaction time (ms)'
+                    text: 'Time (ms)'
                 }
             }
         }
     }
 
-    const graphData = {
-        labels: Array.from({length: 10}, (_, i) => i + 1),
-        datasets,
-    };
-
     useEffect(() => {
-        if(isLoading) return;
-        if (!data || data.hasOwnProperty('invalidFetchMessage')) return;
-        const datasets = data.map((entry, i) => {
-            return {
-                label: i,
-                data: entry.attempts,
-                borderColor: generateRandomColor(),
-                tension: 0.5
+        dataFetcher()
+        .then((res) => {
+            console.log('Here is the result: ', res);
+
+            const graphData = {
+                labels: Array.from({length: 10}, (_, i) => i + 1),
+                values: res.data.values, // This has the structure [[], []...]
+                statData: res.data.overallStats,
+                title: res.title
             }
+
+            const datasets = res.data.values.map((dataset, i) => {
+                return {
+                    // We don't actually use the label, but the lib requires it (I guess to
+                    // uniquely identify different datasets in the same graph)
+                    label: '' + i,
+                    data: dataset,
+                    borderColor: generateRandomColor(),
+                    tension: 0.5,
+                }
+            });
+
+            setGraphData(graphData);
+            setDatasets(datasets);
+            
+            setIsLoading(false);
+        })
+        .catch((err) => {
+            console.err("Failed to fetch data");
         });
+    }, [dataFetcher]);
 
-        setDatasets(datasets);
-
-    }, [isLoading, data])
+    console.log('graphData: ', graphData);
+    console.log('datasets: ', datasets);
 
     if (isLoading) {
         return (
             <StyledDiv>
-                <StyledGraphTitle>{title}</StyledGraphTitle>
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(!data || data.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
+    } else if(!graphData || graphData.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
         return (
             <StyledDiv>
-                <StyledGraphTitle>{title}</StyledGraphTitle>
+                <StyledGraphTitle>{graphData.title}</StyledGraphTitle>
                 <p>Insufficient data to show telemetry</p>
             </StyledDiv>
         )
     } else {
         return (
             <StyledDiv>
-                <StyledGraphTitle>{title}</StyledGraphTitle>
-                <Line data={graphData} options={options}></Line>
-                <StatisticsBlock data={data} />
+                <StyledGraphTitle>{graphData.title}</StyledGraphTitle>
+                <Line data={
+                    {
+                        labels: graphData.labels, 
+                        datasets,
+                    }
+                } 
+                options={options}></Line>
+                <StatisticsBlock stats={graphData.statData} />
             </StyledDiv>
         );
     }
+
 }
 
 export default GraphBlock;

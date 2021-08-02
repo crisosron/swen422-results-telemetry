@@ -66,6 +66,7 @@ const buildDataForField = (field, entries) => {
 }
 
 const buildStatistics = (values) => {
+    if(values.length === 0) return;
     return {
         min: ss.min(values),
         max: ss.max(values),
@@ -241,15 +242,21 @@ exports.getAllMouseClickTime = async (req, res) => {
     const options = req.query;
     console.log('options: ', options);
     console.log("Here's the participant entries we need to work with: ", participants);
-    res.send("Here's a response for data with title: " + titleBuilder("Mouse Click Time", options));
 
     const attempts = filterRequiredAttempts(options);
-    const data = { 
+    
+    const graphData = { 
         data: buildDataForField('mouseClickTime', attempts), 
         title: titleBuilder('Mouse Click Time', options) 
     };
 
-    console.log('data to send to FE: ', data);
+    if(!graphData.data.values.length){
+        res.send({
+            invalidFetchMessage: "Invalid data to display"
+        });
+        return;
+    }
+    res.send(graphData)
 }
 
 exports.getAllMouseTotalTime = async (req, res) => {
