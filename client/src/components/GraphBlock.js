@@ -22,10 +22,9 @@ const GraphBlock = (props) => {
     const {dataFetcher, displayLegend} = props;
     const [isLoading, setIsLoading] = useState(true);
     const [graphData, setGraphData] = useState();
-
+    const [errorMessage, setErrorMessage] = useState();
     const [datasets, setDatasets] = useState();
 
-    console.log('dataFetcher', dataFetcher);
 
     const options = {
         plugins: {
@@ -53,7 +52,11 @@ const GraphBlock = (props) => {
     useEffect(() => {
         dataFetcher()
         .then((res) => {
-            console.log('Here is the result: ', res);
+            if(res.hasOwnProperty('invalidFetchMessage')) {
+                setErrorMessage(res.invalidFetchMessage);
+                isLoading(false);
+                return;
+            }
 
             const graphData = {
                 labels: Array.from({length: 10}, (_, i) => i + 1),
@@ -65,7 +68,9 @@ const GraphBlock = (props) => {
             const datasets = res.data.values.map((dataset, i) => {
                 return {
                     // We don't actually use the label, but the lib requires it (I guess to
-                    // uniquely identify different datasets in the same graph)
+                    // uniquely identify different datasets in the same graph) - Without this,
+                    // multi dataset graphs (i.e line graphs with multiple plotted lines), will
+                    // not show.
                     label: '' + i,
                     data: dataset,
                     borderColor: generateRandomColor(),
@@ -75,16 +80,13 @@ const GraphBlock = (props) => {
 
             setGraphData(graphData);
             setDatasets(datasets);
-            
             setIsLoading(false);
         })
         .catch((err) => {
-            console.err("Failed to fetch data");
+            setIsLoading(false);
+            
         });
-    }, [dataFetcher]);
-
-    console.log('graphData: ', graphData);
-    console.log('datasets: ', datasets);
+    }, [dataFetcher, isLoading]);
 
     if (isLoading) {
         return (
@@ -92,11 +94,10 @@ const GraphBlock = (props) => {
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(!graphData || graphData.hasOwnProperty('invalidFetchMessage') || datasets.length === 0) {
+    } else if(errorMessage) {
         return (
             <StyledDiv>
-                <StyledGraphTitle>{graphData.title}</StyledGraphTitle>
-                <p>Insufficient data to show telemetry</p>
+                <p>Insufficient data to show telemetry for this graph</p>
             </StyledDiv>
         )
     } else {
