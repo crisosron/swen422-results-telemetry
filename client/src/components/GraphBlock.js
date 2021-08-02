@@ -4,10 +4,11 @@ import { Line } from 'react-chartjs-2';
 import StatisticsBlock from './StatisticsBlock';
 
 const StyledDiv = styled.div`
-    width: 500px;
+    width: 450px;
     padding: 10px;
     margin: 10px;
     box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+    display: inline-block;
 `;
 
 const StyledGraphTitle = styled.h1`

@@ -6,18 +6,21 @@ import {
   getAllMouseTravelTime
 } from './fetchers/user-entry-fetcher';
 import GraphBlock from './components/GraphBlock';
-import RatioGraphBlock from './components/RatioGraphBlock';
 import styled from 'styled-components';
 import titleImage from './app-title-image.png';
-import { useEffect, useState } from 'react';
 
 const StyledPageWrapper = styled.div`
   padding: 20px;
   margin: 0 auto;
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-template-rows: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
+
+const StyledWrapper = styled.div`
+  width: 85%;
+  text-align: center;
+`
 
 const TitleImageWrapper = styled.div`
   margin: 20px;
@@ -62,9 +65,11 @@ const App = () => {
         <img src={titleImage} alt="Title Image" width="1000" />
       </TitleImageWrapper>
       <StyledPageWrapper>
+        <StyledWrapper>
           {dataFetchers.map((dataFetcher) => {
             return <GraphBlock dataFetcher={dataFetcher}></GraphBlock>
           })}
+        </StyledWrapper>
       </StyledPageWrapper>
     </>
   );
