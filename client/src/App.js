@@ -50,8 +50,6 @@ const createDataFetchers = (options) => {
 
 const App = () => {
 
-  // const [dataFetchers, setDataFetchers] = useState([]);
-
   const dataFetchers = [
       ...createDataFetchers({forTraining: false, forAbstractImages: false}),
       ...createDataFetchers({forTraining: true, forAbstractImages: false}),

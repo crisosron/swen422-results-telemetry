@@ -79,15 +79,12 @@ const buildStatistics = (values) => {
 // Builds a string that represents the title of the data to be sent to the client
 const titleBuilder = (metric, options) => {
     let title = metric;
-    console.log('In title builder with options: ', options);
 
     if(options.forTraining) title += " - Training"
     else title += " - Actual"
 
     if(options.forAbstractImages) title += " - Abstract Images"
     else title += " - No Abstract Images"
-
-    console.log(title);
 
     return title;
 }
