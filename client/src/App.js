@@ -24,13 +24,13 @@ const TitleImageWrapper = styled.div`
 `
 
 const baseDataFetchers = [ 
-  getAllMouseClickTime, 
-  getAllMouseStillTime, 
+  getAllMouseClickTime,
+  getAllMouseStillTime,
   getAllMouseTotalTime,
   getAllMouseTravelTime
 ]
 
-// The purpose of these functions is to 'save' the functions with their arguments instead of
+// The purpose of this function is to 'save' the functions with their arguments instead of
 // executing them so we can pass the function (with the pre-defined arguments) to each graph
 // block so it can get executed by the graph block
 //
@@ -50,14 +50,17 @@ const App = () => {
     document.title = "SWEN422 Results Telemetry";
 
     const dataFetchers = [
-      ...createDataFetchers({forTraining: false, forAbstractImages: false}),
-      ...createDataFetchers({forTraining: true, forAbstractImages: false}),
-      ...createDataFetchers({forTraining: false, forAbstractImages: true}),
+      // ...createDataFetchers({forTraining: false, forAbstractImages: false}),
+      // ...createDataFetchers({forTraining: true, forAbstractImages: false}),
+      // ...createDataFetchers({forTraining: false, forAbstractImages: true}),
       ...createDataFetchers({forTraining: true, forAbstractImages: true})
     ]
 
+    // dataFetchers.forEach((fetcher) => fetcher());
+    dataFetchers[0]();
+
   }, []);
-  
+
   return (
     <>
       <TitleImageWrapper>

@@ -1,40 +1,154 @@
 const ss = require('simple-statistics');
 const UserEntry = require('../models/UserEntry');
 
-// Assume queryResult is an array
-const buildData = (queryResult) => {
-    let data = [];
-    queryResult.forEach((entry) => {
-        // if(entry.attempts.length === 0) return;
-        // data.push({
-        //     attempts: entry.attempts,
-        //     min: ss.min(entry.attempts),
-        //     max: ss.max(entry.attempts),
-        //     mean: ss.mean(entry.attempts),
-        //     median: ss.median(entry.attempts),
-        //     sd: ss.standardDeviation(entry.attempts)
-        // });
+// ------------- Management of Participants and UserEntries ------------- //
+/*
+    How it all works:
+    Each participant gets 2 game sessions. The first session is coined as a  'training' session,
+    where the participant plays through an entire session under the impression that its purpose
+    is to familiarise themselves with the mechanics of the game before the actual session. The
+    second session is the 'actual' attempt.
+
+    In terms of the program, the exact same data is recorded and stored for both sessions. The code
+    in this section is responsible for associating the correct game sessions with the correct
+    user.
+
+    In the program domain, a UserEntry document in the MongoDB database represents a single game
+    session. Participant's aren't actually stored in the database, just their UserEntry instances.
+    (Yes it would make sense for participants to be stored, its just the time constraints at the
+    time of writing forced me to do it this way D:)
+*/
+
+let participants;
+
+// Every participant gets 2 consecutive game sessions. This means participants gets 2 UserEntry
+// documents associated with them in the UserEntry collection
+const updateParticipantEntries = async () => {
+    UserEntry.find()
+    .then((result) => {
+
+        // This generates the following structure
+        // [[{}...n], [{}...m]]
+        // Each array should have 2 entries, where the first one is the 'training' entry, and the
+        // second one is the 'actual' entry
+        participants = result.reduce((result, _, index, array) => {
+            if(index % 2 === 0) result.push(array.slice(index, index + 2));
+            return result;
+        }, []);
+
+    })
+    .catch((err) => {
+        console.error('Error fetching all user entries for forming participants: ', err);
     });
-    return data;
 }
+
+updateParticipantEntries();
+
+// ------------- Helpers ------------- //
+
+const mapAttemptsToFieldValue = (field, entry) => {
+    return entry.map((attempt) => attempt[field]);
+}
+
+// field: mouseStillTime | mouseTravelTime | mouseClickTime | mouseTotalTime
+// entries - A 2d array of attempts, where the outer layer corresponds to a single entry/game session
+//
+// This returns the following
+// { values: [[numbers], [numbers]...], overallStats: { stats of ALL numbers combined } }
+const buildDataForField = (field, entries) => {
+    const valueArrays = entries.map((entry) => mapAttemptsToFieldValue(field, entry));
+    const mergedArrays = valueArrays.flatMap((arr) => arr);
+    const stats = buildStatistics(mergedArrays);
+    return {
+        values: valueArrays,
+        overallStats: stats
+    }
+}
+
+const buildStatistics = (values) => {
+    return {
+        min: ss.min(values),
+        max: ss.max(values),
+        mean: ss.mean(values),
+        median: ss.median(values),
+        sd: ss.standardDeviation(values)
+    }
+}
+
+// Builds a string that represents the title of the data to be sent to the client
+const titleBuilder = (metric, options) => {
+    let title = metric;
+
+    if(options.forTraining) title += " - Training"
+    else title += " - Actual"
+
+    if(options.forAbstractImages) title += " - Abstract Images"
+    else title += " - No Abstract Images"
+
+    return title;
+}
+
+// The following functions is like a jank version of the builder pattern
+// Example usage:
+// filterForAbstractImages(filterForTrainingEntries()) -> Returns an array of training entries for
+// abstract image participants
+
+// The following 2 functions assumes that each participant has exactly 2 attempts
+const filterForTrainingEntries = () => {
+    return participants.map(participantEntries => participantEntries[0]);
+}
+
+const filterForActualEntries = () => {
+    return participants.map(participantEntries => participantEntries[1]);
+}
+
+// These 2 functions receive an array of entries that have been filtered for either training
+// or actual entries, and return an array of attempts that match the criteria described by the
+// method name
+//
+// FIXME: In retrospect, isAbstractImage should have been passed in per entry, instead of per 
+// attempt
+const filterForAbstractImages = (entries) => {
+    return entries.map((entry) => {
+        return entry.attempts.filter((attempt) => attempt.isAbstractImages);
+    });
+}
+
+const filterForNonAbstractImages = (entries) => {
+    return entries.map((entry) => {
+        return entry.attempts.filter((attempt) => !attempt.isAbstractImages);
+    });
+}
+
+const filterRequiredAttempts = (options) => {
+    const intermediateEntries = 
+        options.forTraining ? filterForTrainingEntries() : filterForActualEntries();
+    
+    const entriesWithImageType = 
+        options.forAbstractImages ? filterForAbstractImages(intermediateEntries) :
+            filterForNonAbstractImages(intermediateEntries)
+
+    return entriesWithImageType;
+}
+
+// ------------- Endpoints ------------- //
 
 // Route: /user-entries/
 // Functionality: Creates a user entry using the model UserEntry
 exports.userEntryIndex = (req, res) => {
-    // UserEntry.find().limit(15)
-    // .then((result) => {
-    //     res.send(buildData(result));
-    // })
-    // .catch((err) => {
-    //     console.error('Error on fetching all user entries: ', err)
-    // });
-    res.send("This endpoint is deprecated");
-    res.status(500);
+    UserEntry.find().limit(15)
+    .then((result) => {
+        // res.send(buildData(result));
+        res.send(result);
+    })
+    .catch((err) => {
+        console.error('Error on fetching all user entries: ', err)
+    });
 }
 
 // Route: /user-entries/create
 // Functionality: Creates a user entry using the model UserEntry
-exports.createUserEntry = (req, res) => {
+exports.createUserEntry = async (req, res) => {
     if(!req.body.attempts || req.body.attempts === 0) return;
 
     const sanitizedAttempts = [];
@@ -60,7 +174,9 @@ exports.createUserEntry = (req, res) => {
     })
 
     userEntry.save()
-    .then(() => {
+    .then(async () => {
+        const numDocs = await UserEntry.count({});
+        if(numDocs % 2 === 0) updateParticipantEntries();
         res.send("Successfully logged entry");
         res.status(200);
     })
@@ -72,8 +188,7 @@ exports.createUserEntry = (req, res) => {
 
 // Route: /user-entries/seed-user-entry
 // Functionality: Creates a randomly generated user entry using the model UserEntry
-exports.seedUserEntry = async (req, res) => {
-
+exports.seedUserEntry = (req, res) => {
     const numAttempts = 10;
     let attempts = [];
     for(let i = 0; i < numAttempts; i++){
@@ -95,7 +210,9 @@ exports.seedUserEntry = async (req, res) => {
     })
 
     userEntry.save()
-    .then((result) => {
+    .then(async (result) => {
+        const numDocs = await UserEntry.count({});
+        if(numDocs % 2 === 0) updateParticipantEntries();
         res.send(result)
     })
     .catch((err) => {
@@ -103,130 +220,44 @@ exports.seedUserEntry = async (req, res) => {
     });
 }
 
-// Route: /user-entries/latest-entry
-// Functionality: Get the most recent set of attempts
-exports.latestEntry = (req, res) => {
-    UserEntry.find().sort({ _id: -1 }).limit(1)
-    .then((result) => {
-        res.send(buildData(result));
-    })
-    .catch((err) => {
-        console.error('Error on fetching latest entry: ', err);
-    });
-}
-
-// Route: /user-entries/latest-entry-with-training
-// Functionality: Get the 2 most recent set of attempts, with the former being the 'training' set
-exports.latestEntryWithTraining = async (req, res) => {
-    const numDocs = await UserEntry.count({});
-    if (numDocs < 2) {
-        res.send({
-            invalidFetchMessage: 'Insufficient data to display' 
-        });
-        return;
-    }
-
-    // If not even, get the 2 entries before the most recent entry, else get the most recent
-    // entries
-    UserEntry.find().sort({ _id: -1 }).limit(3)
-    .then((result) => {
-        // Note that the most recent entry is closer to index 0
-        if(numDocs % 2 === 0) {
-            res.send(buildData([result[result.length - 1], result[result.length - 2]]));
-            return;
-        }
-        res.send(buildData([result[2], result[1]]));
-    })
-    .catch((err) => {
-        console.error('Error on getting latest pair of entries', err);
-    });
-}
-
-// TODO: This method, and the one after can follow DRY better by adding a param to req that
-// specifies if we are looking for training or actual attempts
-// Route: /user-entries/training-entries
-// Functionality: Get all attempts that correspond to a 'training entries'
-exports.trainingEntries = (req, res) => {
-    UserEntry.find({})
-    .then((results) => {
-        // Training sets are the even indexed attempt arrays
-        const filteredResults = results.filter((attempts, i) => i % 2 === 0 )
-        res.send(buildData(filteredResults));
-    })
-    .catch((err) => {
-        console.error("Failed to fetch training sets: ", err)
-    });
-}
-
-// Route: /user-entries/actual-entries
-// Functionality: Get all attempts that correspond to an 'actual entries'
-exports.actualEntries = (req, res) => {
-    UserEntry.find({})
-    .then((results) => {
-        // Training sets are the odd indexed attempt arrays
-        const filteredResults = results.filter((attempts, i) => i % 2 !== 0 )
-        res.send(buildData(filteredResults));
-    })
-    .catch((err) => {
-        console.error("Failed to fetch actual sets: ", err)
-    });
-}
-
-// Route: /user-entries/success-fail-ratio
-// Functionality: Gets the total number of success and failures
-exports.successToFailRatio = async (req, res) => {
-    const numAttemptsSet = await UserEntry.count({});
-    if (numAttemptsSet === 0) {
-        res.send({
-            invalidFetchMessage: 'Insufficient data to display' 
-        });
-        return;
-    }
-    const maxNumAttempts = await UserEntry.count({}) * 10;
-    UserEntry.find({})
-    .then((results) => {
-        // Successful attempts correspond to the length of each attempts array (since these
-        // contain only the succesful responses)
-        let numSuccessfulAttempts = 0;
-        results.forEach((result) => numSuccessfulAttempts += result.attempts.length);
-        const numFailedAttempts = maxNumAttempts - numSuccessfulAttempts;
-        res.send({
-            values: [numSuccessfulAttempts, numFailedAttempts],
-            labels: ["Success", "Fail"]
-        });
-    })
-    .catch((err) => {
-        console.error("Failed to get success to failure ratio: ", err);
-    });
-}
-
 exports.getAllMouseStillTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE STILL TIME -----------");
     const options = req.query;
     console.log('options: ', options);
-
+    console.log("Here's the participant entries we need to work with: ", participants);
+    res.send("Here's a response for data with title: " + titleBuilder("Mouse Still Time", options));
 }
 
 exports.getAllMouseTravelTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE TRAVEL TIME -----------");
     const options = req.query;
     console.log('options: ', options);
-    res.send("Here's a response");
+    console.log("Here's the participant entries we need to work with: ", participants);
+    res.send("Here's a response for data with title: " + titleBuilder("Mouse Travel Time", options));
 }
 
 exports.getAllMouseClickTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE CLICK TIME -----------");
     const options = req.query;
     console.log('options: ', options);
-    res.send("Here's a response");
+    console.log("Here's the participant entries we need to work with: ", participants);
+    res.send("Here's a response for data with title: " + titleBuilder("Mouse Click Time", options));
+
+    const attempts = filterRequiredAttempts(options);
+    const data = { 
+        data: buildDataForField('mouseClickTime', attempts), 
+        title: titleBuilder('Mouse Click Time', options) 
+    };
+
+    console.log('data to send to FE: ', data);
 }
 
 exports.getAllMouseTotalTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE TOTAL TIME -----------");
     const options = req.query;
     console.log('options: ', options);
-    res.send("Here's a response");
-
+    console.log("Here's the participant entries we need to work with: ", participants);
+    res.send("Here's a response for data with title: " + titleBuilder("Mouse Total Time", options));
 }
 
 // Route: /user-entries/clear-entries
@@ -236,8 +267,10 @@ exports.clearEntries = (req, res) => {
     UserEntry.deleteMany({})
     .then(() => {
         res.send("ALL USER ENTRIES DELETED");
+        updateParticipantEntries();
     })
     .catch((err) => {
         console.error("Failed to delete all documents: ", err);
     });
 }
+

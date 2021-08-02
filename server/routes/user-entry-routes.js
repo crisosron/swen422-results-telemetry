@@ -2,7 +2,7 @@ const userEntryRouter = require('express').Router();
 
 const userEntryController = require('../controllers/user-entry-controller');
 
-// userEntryRouter.get('/', userEntryController.userEntryIndex);
+userEntryRouter.get('/', userEntryController.userEntryIndex);
 // userEntryRouter.get('/latest-entry', userEntryController.latestEntry)
 // userEntryRouter.get('/latest-entry-with-training', userEntryController.latestEntryWithTraining)
 // userEntryRouter.get('/training-entries', userEntryController.trainingEntries);
