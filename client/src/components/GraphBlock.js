@@ -1,19 +1,13 @@
-import styled from 'styled-components';
 import {useState, useEffect} from 'react';
 import { Line } from 'react-chartjs-2';
 import StatisticsBlock from './StatisticsBlock';
-
-const StyledDiv = styled.div`
-    width: 450px;
-    padding: 10px;
-    margin: 10px;
-    box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
-    display: inline-block;
-`;
-
-const StyledGraphTitle = styled.h1`
-    font-size: 25px;
-`
+import { 
+    StyledDiv,
+    StyledGraphTitle,
+    FlexWrapper,
+    TitleDiv,
+    ContentDiv
+} from "./util-components";
 
 const generateRandomColor = () => {
     return '#' + Math.floor(Math.random()*16777215).toString(16);
@@ -92,27 +86,37 @@ const GraphBlock = (props) => {
     if (isLoading) {
         return (
             <StyledDiv>
-                <p>Loading...</p>
+                <FlexWrapper>
+                    <ContentDiv>
+                        <p>Loading...</p>
+                    </ContentDiv>
+                </FlexWrapper>
             </StyledDiv>
         )
     } else if(!graphData || errorMessage) {
         return (
             <StyledDiv>
-                <p>Insufficient data to show telemetry for this graph</p>
+                <FlexWrapper>
+                    <ContentDiv>
+                        <p>Insufficient data to show telemetry for this graph</p>
+                    </ContentDiv>
+                </FlexWrapper>
             </StyledDiv>
         )
     } else {
         return (
             <StyledDiv>
-                <StyledGraphTitle>{graphData.title}</StyledGraphTitle>
-                <Line data={
-                    {
-                        labels: graphData.labels, 
-                        datasets,
-                    }
-                } 
-                options={options}></Line>
-                <StatisticsBlock stats={graphData.statData} />
+                <FlexWrapper>
+                    <StyledGraphTitle>{graphData.title}</StyledGraphTitle>
+                    <Line data={
+                        {
+                            labels: graphData.labels, 
+                            datasets,
+                        }
+                    } 
+                    options={options}></Line>
+                    <StatisticsBlock stats={graphData.statData} />
+                </FlexWrapper>
             </StyledDiv>
         );
     }

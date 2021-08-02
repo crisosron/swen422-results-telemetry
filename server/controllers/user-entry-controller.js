@@ -314,6 +314,21 @@ exports.getAllMouseTotalTime = async (req, res) => {
     res.send(graphData)
 }
 
+exports.getAverageTravelVelocity = async (req, res) => {
+    console.log("---------------- GETTING AVERAGE TRAVEL VELOCITY ----------------");
+    const options = {
+        forTraining: req.query.forTraining === 'true',
+        forAbstractImages: req.query.forAbstractImages === 'true'
+    }
+
+    const attempts = filterRequiredAttempts(options);
+    const velocities = attempts.flatMap((attempts) => attempts)
+        .map((attempt) => attempt.travelVelocity)
+    if(velocities.length === 0) return;
+    const velocitySum = velocities.reduce((acc, current) => acc + current);
+    res.send({ value: velocitySum / velocities.length, title: titleBuilder('Average Travel Velocity', options) });
+}
+
 // Route: /user-entries/clear-entries
 // Functionality: Delete all documents in the UserEntry collection
 // WARNING: THIS IS A DESTRUCTIVE CALL

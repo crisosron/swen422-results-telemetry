@@ -3,11 +3,13 @@ import {
   getAllMouseClickTime,
   getAllMouseStillTime,
   getAllMouseTotalTime,
-  getAllMouseTravelTime
+  getAllMouseTravelTime,
+  getAverageTravelVelocity
 } from './fetchers/user-entry-fetcher';
 import GraphBlock from './components/GraphBlock';
 import styled from 'styled-components';
 import titleImage from './app-title-image.png';
+import BasicBlock from './components/BasicBlock';
 
 const StyledPageWrapper = styled.div`
   padding: 20px;
@@ -27,10 +29,11 @@ const TitleImageWrapper = styled.div`
 `
 
 const baseDataFetchers = [ 
-  getAllMouseClickTime,
-  getAllMouseStillTime,
-  getAllMouseTotalTime,
-  getAllMouseTravelTime
+  { fn: getAllMouseClickTime, blockType: 'GraphBlock' },
+  { fn: getAllMouseStillTime, blockType: 'GraphBlock' },
+  { fn: getAllMouseTotalTime, blockType: 'GraphBlock' },
+  { fn: getAllMouseTravelTime, blockType: 'GraphBlock' },
+  { fn: getAverageTravelVelocity, blockType: 'BasicBlock' }
 ]
 
 // The purpose of this function is to 'save' the functions with their arguments instead of
@@ -42,7 +45,10 @@ const baseDataFetchers = [
 const createDataFetchers = (options) => {
   const dataFetchers = [];
   baseDataFetchers.forEach((baseDataFetcher) => {
-    dataFetchers.push(baseDataFetcher.bind(null, options));
+    dataFetchers.push({
+      dataFetcherFunction: baseDataFetcher.fn.bind(null, options),
+      blockType: baseDataFetcher.blockType
+    });
   })
 
   return dataFetchers;
@@ -51,11 +57,11 @@ const createDataFetchers = (options) => {
 const App = () => {
 
   const dataFetchers = [
-      ...createDataFetchers({forTraining: false, forAbstractImages: false}),
-      ...createDataFetchers({forTraining: true, forAbstractImages: false}),
-      ...createDataFetchers({forTraining: false, forAbstractImages: true}),
-      ...createDataFetchers({forTraining: true, forAbstractImages: true})
-    ]
+    ...createDataFetchers({forTraining: false, forAbstractImages: false}),
+    ...createDataFetchers({forTraining: true, forAbstractImages: false}),
+    ...createDataFetchers({forTraining: false, forAbstractImages: true}),
+    ...createDataFetchers({forTraining: true, forAbstractImages: true})
+  ]
 
   return (
     <>
@@ -65,7 +71,9 @@ const App = () => {
       <StyledPageWrapper>
         <StyledWrapper>
           {dataFetchers.map((dataFetcher) => {
-            return <GraphBlock dataFetcher={dataFetcher}></GraphBlock>
+            if (dataFetcher.blockType === 'GraphBlock') 
+              return <GraphBlock dataFetcher={dataFetcher.dataFetcherFunction} />
+            else return <BasicBlock dataFetcher={dataFetcher.dataFetcherFunction} />
           })}
         </StyledWrapper>
       </StyledPageWrapper>

@@ -8,7 +8,6 @@ const getAllMouseStillTime = async (options) => {
         forTraining: options.forTraining,
         forAbstractImages: options.forAbstractImages
     }});
-    console.log("Response received: ", data);
     return data;
 }
 
@@ -17,7 +16,6 @@ const getAllMouseTravelTime = async (options) => {
         forTraining: options.forTraining,
         forAbstractImages: options.forAbstractImages
     }});
-    console.log("Response received: ", data);
     return data;
 }
 
@@ -26,7 +24,6 @@ const getAllMouseClickTime = async (options) => {
         forTraining: options.forTraining,
         forAbstractImages: options.forAbstractImages
     }});
-    console.log("Response received: ", data);
     return data;
 }
 
@@ -35,13 +32,21 @@ const getAllMouseTotalTime = async (options) => {
         forTraining: options.forTraining,
         forAbstractImages: options.forAbstractImages
     }});
-    console.log("Response received: ", data);
+    return data;
+}
+
+const getAverageTravelVelocity =  async (options) => {
+    const { data } = await axios.get('/user-entries/get-average-travel-velocity', { params: {
+        forTraining: options.forTraining,
+        forAbstractImages: options.forAbstractImages
+    }});
     return data;
 }
 
 export { 
-    getAllMouseStillTime, 
+    getAllMouseStillTime,
     getAllMouseTravelTime,
     getAllMouseClickTime, 
     getAllMouseTotalTime,
+    getAverageTravelVelocity
 }
