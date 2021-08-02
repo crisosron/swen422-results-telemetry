@@ -226,7 +226,6 @@ exports.seedUserEntry = (req, res) => {
 // TODO: There's a lot of room for DRY here - Maybe use singleton pattern and parameterize options?
 
 exports.getAllMouseStillTime = async (req, res) => {
-    console.log("----------- GETTING ALL MOUSE STILL TIME -----------");
     const options = {
         forTraining: req.query.forTraining === 'true',
         forAbstractImages: req.query.forAbstractImages === 'true'
@@ -249,7 +248,6 @@ exports.getAllMouseStillTime = async (req, res) => {
 }
 
 exports.getAllMouseTravelTime = async (req, res) => {
-    console.log("----------- GETTING ALL MOUSE TRAVEL TIME -----------");
     const options = {
         forTraining: req.query.forTraining === 'true',
         forAbstractImages: req.query.forAbstractImages === 'true'
@@ -273,7 +271,6 @@ exports.getAllMouseTravelTime = async (req, res) => {
 }
 
 exports.getAllMouseClickTime = async (req, res) => {
-    console.log("----------- GETTING ALL MOUSE CLICK TIME -----------");
     const options = {
         forTraining: req.query.forTraining === 'true',
         forAbstractImages: req.query.forAbstractImages === 'true'
@@ -296,8 +293,6 @@ exports.getAllMouseClickTime = async (req, res) => {
 }
 
 exports.getAllMouseTotalTime = async (req, res) => {
-    console.log("----------- GETTING ALL MOUSE TOTAL TIME -----------");
-    console.log(req.query);
 
     // We have to do this because the data being sent is json, and the boolean primitives set
     // in the FE gets turned into strings...
