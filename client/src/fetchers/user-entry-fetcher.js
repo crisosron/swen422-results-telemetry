@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 // TODO: There's some room for DRY here from what it looks like
+// (we can parameterize the routes)
 
 const getAllMouseStillTime = async (options) => {
     const { data } = await axios.get('/user-entries/get-all-mouse-still-time', { params: {

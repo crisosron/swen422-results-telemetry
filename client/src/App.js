@@ -50,30 +50,11 @@ const App = () => {
   // const [dataFetchers, setDataFetchers] = useState([]);
 
   const dataFetchers = [
-      // ...createDataFetchers({forTraining: false, forAbstractImages: false}),
-      // ...createDataFetchers({forTraining: true, forAbstractImages: false}),
-      // ...createDataFetchers({forTraining: false, forAbstractImages: true}),
+      ...createDataFetchers({forTraining: false, forAbstractImages: false}),
+      ...createDataFetchers({forTraining: true, forAbstractImages: false}),
+      ...createDataFetchers({forTraining: false, forAbstractImages: true}),
       ...createDataFetchers({forTraining: true, forAbstractImages: true})
     ]
-
-
-    // setDataFetchers(dataFetchers);
-
-
-  // useEffect(() => {
-  //   document.title = "SWEN422 Results Telemetry";
-
-  //   const dataFetchers = [
-  //     // ...createDataFetchers({forTraining: false, forAbstractImages: false}),
-  //     // ...createDataFetchers({forTraining: true, forAbstractImages: false}),
-  //     // ...createDataFetchers({forTraining: false, forAbstractImages: true}),
-  //     ...createDataFetchers({forTraining: true, forAbstractImages: true})
-  //   ]
-
-
-  //   setDataFetchers(dataFetchers);
-
-  // }, []);
 
   return (
     <>
@@ -81,13 +62,9 @@ const App = () => {
         <img src={titleImage} alt="Title Image" width="1000" />
       </TitleImageWrapper>
       <StyledPageWrapper>
-          <GraphBlock dataFetcher={dataFetchers[0]}></GraphBlock>
-            {/* <GraphBlock title="Global Statistics" dataFetcherName="globalAverage" dataFetcher={ getAllUserEntries } />
-            <GraphBlock title="Latest Entry with Training" displayLegend dataFetcherName="latestEntryWithTraining" dataFetcher={ getLatestEntryWithTraining } />
-            <GraphBlock title="Latest Entry" dataFetcherName="latestEntry" dataFetcher={ getLatestEntry } />
-            <GraphBlock title="Training Entries" dataFetcherName="trainingEntries" dataFetcher={ getTrainingEntries } />
-            <GraphBlock title="Actual Entries" dataFetcherName="actualEntries" dataFetcher={ getActualEntries } />
-            <RatioGraphBlock title="Success-Fail Ratio" dataFetcherName="successFailRatio" dataFetcher={ getSuccessFailRatio } /> */}
+          {dataFetchers.map((dataFetcher) => {
+            return <GraphBlock dataFetcher={dataFetcher}></GraphBlock>
+          })}
       </StyledPageWrapper>
     </>
   );

@@ -79,12 +79,15 @@ const buildStatistics = (values) => {
 // Builds a string that represents the title of the data to be sent to the client
 const titleBuilder = (metric, options) => {
     let title = metric;
+    console.log('In title builder with options: ', options);
 
     if(options.forTraining) title += " - Training"
     else title += " - Actual"
 
     if(options.forAbstractImages) title += " - Abstract Images"
     else title += " - No Abstract Images"
+
+    console.log(title);
 
     return title;
 }
@@ -139,7 +142,6 @@ const filterRequiredAttempts = (options) => {
 exports.userEntryIndex = (req, res) => {
     UserEntry.find().limit(15)
     .then((result) => {
-        // res.send(buildData(result));
         res.send(result);
     })
     .catch((err) => {
@@ -221,27 +223,61 @@ exports.seedUserEntry = (req, res) => {
     });
 }
 
+// TODO: There's a lot of room for DRY here - Maybe use singleton pattern and parameterize options?
+
 exports.getAllMouseStillTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE STILL TIME -----------");
-    const options = req.query;
-    console.log('options: ', options);
-    console.log("Here's the participant entries we need to work with: ", participants);
-    res.send("Here's a response for data with title: " + titleBuilder("Mouse Still Time", options));
+    const options = {
+        forTraining: req.query.forTraining === 'true',
+        forAbstractImages: req.query.forAbstractImages === 'true'
+    }
+
+    const attempts = filterRequiredAttempts(options);
+    
+    const graphData = { 
+        data: buildDataForField('mouseStillTime', attempts),
+        title: titleBuilder('Mouse Still Time', options) 
+    };
+
+    if(!graphData.data.values.length){
+        res.send({
+            invalidFetchMessage: "Invalid data to display"
+        });
+        return;
+    }
+    res.send(graphData)
 }
 
 exports.getAllMouseTravelTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE TRAVEL TIME -----------");
-    const options = req.query;
-    console.log('options: ', options);
-    console.log("Here's the participant entries we need to work with: ", participants);
-    res.send("Here's a response for data with title: " + titleBuilder("Mouse Travel Time", options));
+    const options = {
+        forTraining: req.query.forTraining === 'true',
+        forAbstractImages: req.query.forAbstractImages === 'true'
+    }
+
+    const attempts = filterRequiredAttempts(options);
+    
+    const graphData = { 
+        data: buildDataForField('mouseTravelTime', attempts), 
+        title: titleBuilder('Mouse Travel Time', options) 
+    };
+
+    if(!graphData.data.values.length){
+        res.send({
+            invalidFetchMessage: "Invalid data to display"
+        });
+        return;
+    }
+    res.send(graphData)
+
 }
 
 exports.getAllMouseClickTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE CLICK TIME -----------");
-    const options = req.query;
-    console.log('options: ', options);
-    console.log("Here's the participant entries we need to work with: ", participants);
+    const options = {
+        forTraining: req.query.forTraining === 'true',
+        forAbstractImages: req.query.forAbstractImages === 'true'
+    }
 
     const attempts = filterRequiredAttempts(options);
     
@@ -261,10 +297,29 @@ exports.getAllMouseClickTime = async (req, res) => {
 
 exports.getAllMouseTotalTime = async (req, res) => {
     console.log("----------- GETTING ALL MOUSE TOTAL TIME -----------");
-    const options = req.query;
-    console.log('options: ', options);
-    console.log("Here's the participant entries we need to work with: ", participants);
-    res.send("Here's a response for data with title: " + titleBuilder("Mouse Total Time", options));
+    console.log(req.query);
+
+    // We have to do this because the data being sent is json, and the boolean primitives set
+    // in the FE gets turned into strings...
+    const options = {
+        forTraining: req.query.forTraining === 'true',
+        forAbstractImages: req.query.forAbstractImages === 'true'
+    }
+
+    const attempts = filterRequiredAttempts(options);
+    
+    const graphData = { 
+        data: buildDataForField('mouseTotalTime', attempts), 
+        title: titleBuilder('Mouse Total Time', options) 
+    };
+
+    if(!graphData.data.values.length){
+        res.send({
+            invalidFetchMessage: "Invalid data to display"
+        });
+        return;
+    }
+    res.send(graphData)
 }
 
 // Route: /user-entries/clear-entries

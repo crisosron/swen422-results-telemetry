@@ -94,7 +94,7 @@ const GraphBlock = (props) => {
                 <p>Loading...</p>
             </StyledDiv>
         )
-    } else if(errorMessage) {
+    } else if(!graphData || errorMessage) {
         return (
             <StyledDiv>
                 <p>Insufficient data to show telemetry for this graph</p>

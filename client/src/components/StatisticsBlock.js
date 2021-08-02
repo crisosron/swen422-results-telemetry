@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { min, max, mean, standardDeviation, median } from 'simple-statistics';
 
 const StyledDiv = styled.div`
     padding: 10px;
@@ -26,11 +25,11 @@ const SIG_FIG = 3
 const StatisticsBlock = (props) => {
     const { stats } = props;
 
-    if(stats.hasOwnProperty('invalidFetchMessage') || !stats || Object.keys(stats).length === 0) {
+    if(!stats || stats.hasOwnProperty('invalidFetchMessage') || Object.keys(stats).length === 0) {
         return (
             <StyledDiv>
                 <TextBlock>
-                    <p>Insufficient data to display</p>
+                    <p>Insufficient data to display statistics</p>
                 </TextBlock>
             </StyledDiv>
         )
