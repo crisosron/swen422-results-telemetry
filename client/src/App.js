@@ -66,14 +66,14 @@ const App = () => {
   return (
     <>
       <TitleImageWrapper>
-        <img src={titleImage} alt="Title Image" width="1000" />
+        <img src={titleImage} width="1000" alt="" />
       </TitleImageWrapper>
       <StyledPageWrapper>
         <StyledWrapper>
-          {dataFetchers.map((dataFetcher) => {
+          {dataFetchers.map((dataFetcher, i) => {
             if (dataFetcher.blockType === 'GraphBlock') 
-              return <GraphBlock dataFetcher={dataFetcher.dataFetcherFunction} />
-            else return <BasicBlock dataFetcher={dataFetcher.dataFetcherFunction} />
+              return <GraphBlock dataFetcher={dataFetcher.dataFetcherFunction} key={i} />
+            else return <BasicBlock dataFetcher={dataFetcher.dataFetcherFunction} key={i} />
           })}
         </StyledWrapper>
       </StyledPageWrapper>

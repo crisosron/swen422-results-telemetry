@@ -5,7 +5,6 @@ import {
     StyledDiv,
     StyledGraphTitle,
     FlexWrapper,
-    TitleDiv,
     ContentDiv
 } from "./util-components";
 

@@ -315,7 +315,6 @@ exports.getAllMouseTotalTime = async (req, res) => {
 }
 
 exports.getAverageTravelVelocity = async (req, res) => {
-    console.log("---------------- GETTING AVERAGE TRAVEL VELOCITY ----------------");
     const options = {
         forTraining: req.query.forTraining === 'true',
         forAbstractImages: req.query.forAbstractImages === 'true'
